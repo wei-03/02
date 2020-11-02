@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+                           http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+                           http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+                            http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+    <!--1.扫包-->
+    <context:component-scan base-package="com.yg">
+        <!--制定扫包规则不扫描使用@Controller注解的java类-->
+        <context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+    </context:component-scan>
+
+    <!--引入外部文件-->
+    <context:property-placeholder location="classpath:jdbc.properties"></context:property-placeholder>
+    <!--2.配置数据库连接池-->
+    <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource" destroy-method="close">
+        <!-- 下边->基本配置 -->
+        <!--驱动-->
+        <property name="driverClassName" value="com.mysql.cj.jdbc.Driver"></property>
+        <!--数据库连接池地址  -->
+        <property name="url" value="${jdbc.url}"></property>
+        <!--用户名  -->
+        <property name="username" value="${jdbc.user}"></property>
+        <!--密码  -->
+        <property name="password" value="${jdbc.password}"></property>
+    </bean>
+
+    <!--3.整合mybatis ①spring管理所有组件  ②spring管理事务  -->
+
+    <!--创建sqlSessionFactoryBean  -->
+    <bean id="sqlSessionFactoryBean" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="dataSource"/> <!-- 引入数据源 -->
+        <property name="configLocation" value="classpath:mybatis-config.xml"/><!--加载mybatis全局配置文件  -->
+        <property name="mapperLocations" value="classpath:mapper/UserDao.xml"/> <!-- 指定mapper -->
+    </bean>
+
+    <!--扫描所有mapper接口实现自动注入 IOC中 -->
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="com.yg.dao"/>
+    </bean>
+
+    <!--4.Spring配置事务管理器 -->
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource"></property>
+    </bean>
+
+    <!--5.开启事务注解    可以用@EnableTransactionManagement-->
+    <tx:annotation-driven transaction-manager="transactionManager"></tx:annotation-driven>
+</beans>

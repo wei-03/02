@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yg.dao.UserDao">
+
+    <!-- public int insertUser(User user); -->
+    <!--用户注册  -->
+    <insert id="insertUser" parameterType="com.yg.pojo.User">
+    insert into t_user(username,password,role,mobile,email,regtime,updatetime,deletetime,userstatus)
+       values(#{username},#{password},#{role},#{mobile},#{email},#{regtime},#{updatetime},#{deletetime},#{userstatus})
+    </insert>
+    <!--<sql id="insertColumn">
+    username,password,role,mobile,email,regtime,updatetime,deletetime,userstatus
+  </sql>-->
+
+    <!--用户登录-->
+    <select id="selectUserByNameAndPwd" resultType="com.yg.pojo.User">
+        select * from t_user where username=#{username} and password=#{password}
+    </select>
+
+    <!-- List<User> selectAllUser(int nowPageNo,int nowPageSize); -->
+    <!--根据条件查询所有用户  -->
+    <select id="selectAllUser" resultType="com.yg.pojo.User">  <!--resultType:输出参数类型  parameterType:输入参数类型-->
+    	SELECT id,username,password,role,mobile,email,regtime AS regTime,updatetime AS updateTime,deletetime AS deleteTime,userstatus AS userStatus
+    	FROM t_user LIMIT${nowPageNo},${nowPageSize}
+    </select>
+
+</mapper>
